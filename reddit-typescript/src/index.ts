@@ -10,10 +10,9 @@ import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/posts";
 import { UserResolver } from "./resolvers/user";
 import session from "express-session";
-import { MyContext } from "./types";
-// const RedisStore = require("connect-redis")(session);
 import { createClient } from "redis";
 import connectRedis from "connect-redis";
+import cors from "cors";
 
 const main = async () => {
   const orm = await MikroORM.init(mikroOrmConfig);
@@ -23,6 +22,8 @@ const main = async () => {
   let RedisStore = connectRedis(session);
   let redisClient = createClient({ legacyMode: true });
   redisClient.connect().catch(console.error);
+
+  app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
   app.use(
     session({
@@ -41,10 +42,10 @@ const main = async () => {
     })
   );
 
-  const cors = {
-    origin: "https://studio.apollographql.com",
-    credentials: true,
-  };
+  // const cors = {
+  //   origin: "https://studio.apollographql.com",
+  //   credentials: true,
+  // };
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
@@ -52,12 +53,12 @@ const main = async () => {
       validate: false,
     }),
 
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
+    context: ({ req, res }) => ({ em: orm.em, req, res }),
   });
 
   await apolloServer.start();
 
-  apolloServer.applyMiddleware({ app, cors });
+  apolloServer.applyMiddleware({ app, cors: false });
 
   app.listen(4000, () => {
     console.log(`Server Started at localhost:4000`);
