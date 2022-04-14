@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { MikroORM } from "@mikro-orm/core";
 import "dotenv-safe/config";
-import { __prod__ } from "./constants";
+import { COOKIE_NAME, __prod__ } from "./constants";
 import mikroOrmConfig from "./mikro-orm.config";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
@@ -12,6 +12,7 @@ import { UserResolver } from "./resolvers/user";
 import session from "express-session";
 import { createClient } from "redis";
 import connectRedis from "connect-redis";
+
 // import cors from "cors";
 
 const main = async () => {
@@ -27,7 +28,7 @@ const main = async () => {
 
   app.use(
     session({
-      name: "qid1",
+      name: COOKIE_NAME,
       store: new RedisStore({
         // @ts-ignore
         client: redisClient,
