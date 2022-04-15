@@ -10,8 +10,8 @@ import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/posts";
 import { UserResolver } from "./resolvers/user";
 import session from "express-session";
-import { createClient } from "redis";
 import connectRedis from "connect-redis";
+import Redis from "ioredis";
 
 // import cors from "cors";
 
@@ -20,9 +20,9 @@ const main = async () => {
   await orm.getMigrator().up(); //run migrations
   const app = express();
 
+  const redis = new Redis();
+
   let RedisStore = connectRedis(session);
-  let redisClient = createClient({ legacyMode: true });
-  redisClient.connect().catch(console.error);
 
   // app.use(cors({ origin: "*", credentials: true }));
 
@@ -31,7 +31,7 @@ const main = async () => {
       name: COOKIE_NAME,
       store: new RedisStore({
         // @ts-ignore
-        client: redisClient,
+        client: redis,
       }),
       cookie: {
         maxAge: 1000 * 60 * 60 * 24,
@@ -54,7 +54,7 @@ const main = async () => {
       validate: false,
     }),
 
-    context: ({ req, res }) => ({ em: orm.em, req, res }),
+    context: ({ req, res }) => ({ em: orm.em, req, res, redis }),
   });
 
   await apolloServer.start();
