@@ -6,29 +6,21 @@ import { RequiredEntityData } from "@mikro-orm/core";
 @Resolver()
 export class PostResolver {
   @Query(() => [Post])
-  posts(@Ctx() ctx: MyContext): Promise<Post[]> {
-    return ctx.em.find(Post, {});
+  async posts(): Promise<Post[]> {
+    return Post.find();
   }
 
   @Query(() => Post, { nullable: true })
-  post(
-    @Arg("_id", () => Int) _id: number,
-    @Ctx()
-    ctx: MyContext
-  ): Promise<Post | null> {
-    return ctx.em.findOne(Post, { _id });
+  post(@Arg("_id") _id: number): Promise<Post | null> {
+    return Post.findOne({ where: { _id } });
   }
 
   @Mutation(() => Post)
   async createPost(
-    @Arg("title") title: string,
-    @Ctx()
-    ctx: MyContext
+    @Arg("title") title: string
   ): Promise<RequiredEntityData<Post>> {
     // @ts-ignore
-    const post = ctx.em.create(Post, { title });
-    await ctx.em.persistAndFlush(post);
-    return post;
+    return Post.create({ title }).save();
   }
 
   @Mutation(() => Post, { nullable: true })

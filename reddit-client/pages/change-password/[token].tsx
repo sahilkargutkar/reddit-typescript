@@ -1,7 +1,8 @@
-import { Box, Button } from "@chakra-ui/react";
+import { Box, Button, Flex, Link } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { NextPage } from "next";
 import { withUrqlClient } from "next-urql";
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import InputField from "../../components/InputField";
@@ -44,12 +45,16 @@ const ChangedPassword: NextPage<{ token: string }> = ({ token }) => {
               type="password"
             />
             {tokenError ? (
-              <>
-                <Box color="red">{tokenError}</Box>
-              </>
-            ) : (
-              <></>
-            )}
+              <Flex>
+                <Box mr={4} color="red">
+                  {tokenError}
+                </Box>
+                <NextLink href="/forgot-password">
+                  <Link>forgot again ?</Link>
+                </NextLink>
+                <br />
+              </Flex>
+            ) : null}
             <Button
               mt={4}
               type="submit"
