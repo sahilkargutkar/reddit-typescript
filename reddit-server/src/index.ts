@@ -6,34 +6,23 @@ import express from "express";
 import session from "express-session";
 import Redis from "ioredis";
 import { buildSchema } from "type-graphql";
-import { DataSource } from "typeorm";
+
 import { COOKIE_NAME } from "./constants";
-import { Post } from "./entities/Post";
-import { User } from "./entities/User";
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/posts";
 import { UserResolver } from "./resolvers/user";
+import postgresDataSource from "./connection";
 
 // import cors from "cors";
 
 const main = async () => {
-  const postgresDataSource = new DataSource({
-    type: "postgres",
-    port: 5432,
-    database: "lireddit2",
-    username: "postgres",
-    password: "postgres",
-    logging: true,
-    synchronize: true,
-    entities: [Post, User],
-  });
-
   postgresDataSource
     .initialize()
     .then(() => {
       console.log("Initialized");
     })
     .catch((err) => console.error("err", err));
+
   const app = express();
 
   const redis = new Redis();
